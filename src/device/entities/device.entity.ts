@@ -8,6 +8,16 @@ export class Device extends AbstractBaseEntity {
   deviceId!: string;
   @Property()
   secret!: string;
-  @Property()
-  geoLocation!: string;
+  @Property({nullable: true})
+  latitude?: string;
+  @Property({nullable: true})
+  longitude?: string;
+
+  constructor(props: Omit<Device, keyof AbstractBaseEntity>) {
+    super();
+    this.deviceId = props.deviceId;
+    this.secret = props.secret;
+    this.longitude = props.longitude;
+    this.latitude = props.latitude;
+  }
 }
