@@ -59,12 +59,12 @@ export class DeviceService implements IDeviceService {
   }
 
   @UseRequestContext()
-  async findDevicesToConnect(secret: string): Promise<Device[]> {
+  async findDevicesToConnect(secret: string) {
     const hash = crypto.createHash("md5").update(secret).digest("hex");
     const device = await this.deviceRepository.find({ secret: hash });
 
     if (!device) {
-      throw new EntityNotFoundError(Device);
+      return;
     }
 
     return device;
@@ -80,13 +80,13 @@ export class DeviceService implements IDeviceService {
 
   @UseRequestContext()
   async getDevice(id: any, secret: any) {
-    if (secret){
-      const hash = crypto
-      .createHash("md5")
-      .update(secret)
-      .digest("hex");
-      const device = await this.deviceRepository.findOne({deviceId:id, secret: hash});
+    if (secret) {
+      const hash = crypto.createHash("md5").update(secret).digest("hex");
+      const device = await this.deviceRepository.findOne({
+        deviceId: id,
+        secret: hash,
+      });
       return device;
     }
-}
+  }
 }
