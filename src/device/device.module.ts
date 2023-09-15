@@ -8,5 +8,6 @@ import { DeviceServiceProvider } from './providers';
   imports: [MikroOrmModule.forFeature([Device])],
   controllers: [DeviceController],
   providers: [DeviceServiceProvider],
+  exports:[DeviceServiceProvider]
 })
 export class DeviceModule {}
