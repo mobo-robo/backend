@@ -36,9 +36,10 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(client: any) {
-   const { deviceId } = this.getHandshakeHeaders(client);
-   await this.deviceService.softDelete(deviceId);
-   this.logger.log(`Client disconnected from server`);
+    const { deviceId } = this.getHandshakeHeaders(client);
+    if (!deviceId) return;
+    await this.deviceService.softDelete(deviceId);
+    this.logger.log(`Client disconnected from server`);
   }
 
   @SubscribeMessage("position")
