@@ -38,9 +38,9 @@ export class DeviceService implements IDeviceService {
 
   @UseRequestContext()
   async softDelete(deviceId: string): Promise<boolean> {
-    const contact = await this.findOne(deviceId);
-    wrap(contact).assign({ deletedAt: new Date() });
-
+    const device = await this.findOne(deviceId);
+    if (!device) return false;
+    wrap(device).assign({ deletedAt: new Date() });
     await this.orm.em.flush();
     return true;
   }
