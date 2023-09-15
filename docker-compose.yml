@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  db:
+    container_name: ${DATABASE__NAME}
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DATABASE__USER}
+      - POSTGRES_PASSWORD=${DATABASE__PASSWORD}
+      - POSTGRES_DB=${DATABASE__NAME}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+      
