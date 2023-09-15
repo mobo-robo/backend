@@ -36,7 +36,7 @@ async findOne(deviceId: string): Promise<Device> {
 
     return device;
   }
-
+  @UseRequestContext()
   async softDelete(deviceId: string): Promise<boolean> {
     const contact = await this.findOne(deviceId);
     wrap(contact).assign({ deletedAt: new Date() });

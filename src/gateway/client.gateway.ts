@@ -35,8 +35,10 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client connected with server`);
   }
 
-  handleDisconnect(client: any) {
-    this.logger.log(`Client disconnected from server`);
+  async handleDisconnect(client: any) {
+   const { deviceId } = this.getHandshakeHeaders(client);
+   await this.deviceService.softDelete(deviceId);
+   this.logger.log(`Client disconnected from server`);
   }
 
   @SubscribeMessage("position")
@@ -62,6 +64,13 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return {
       deviceId: socket.client.request.headers.deviceid,
       secret: socket.client.request.headers.secret,
+    };
+  }
+
+  private getHandshakeHeaders(socket: any) {
+    return {
+      deviceId: socket.handshake.headers.deviceid,
+      secret: socket.handshake.headers.secret,
     };
   }
 
