@@ -10,24 +10,46 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
-} from "@nestjs/common";
-import { IDeviceService } from "../service/device.service.interface";
-import { DEVICE_SERVICE } from "../constants";
-import { ApiAcceptedResponse, ApiOkResponse, ApiTags } from "@nestjs/swagger";
-import { DeviceUpdateDto } from "../dto/update.device.dto";
-import { EntityNotFoundError } from "@/common";
-import { DeviceDto } from "../dto/device.dto";
+  Put,
+  Query,
+} from '@nestjs/common';
+import {
+  ApiAcceptedResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
-@Controller({
-    path: 'device',
-    version: '1',
-})
+import { Device } from '../entities/device.entity';
+import { DeviceService } from '../services/device.service';
+import { DEVICE_SERVICE } from '../constants';
+import { DeviceDto, DeviceUpdateDto } from '../dto';
+import { EntityNotFoundError } from '@/common';
+
+@Controller(
+  // 'device'
+  {
+  path: 'device',
+  version: '1',
+}
+)
 @ApiTags('device')
 export class DeviceController {
   constructor(
     @Inject(DEVICE_SERVICE)
-    private readonly deviceService: IDeviceService
+    private readonly deviceService: DeviceService
   ) {}
+
+  
+  @Post('/create')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({
+    type: Device,
+    description: 'Creates a new device.',
+  })
+  async create(@Body() data: {secret: string}) {
+    return this.deviceService.create(data.secret);
+  }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
@@ -74,5 +96,4 @@ export class DeviceController {
       }
     }
   }
-
 }
