@@ -16,6 +16,7 @@ export class DeviceService implements IDeviceService{
     private readonly deviceRepository: DeviceRepository
   ) {}
 
+
   async create(secret: string): Promise<Device> {
     const hash = crypto
     .createHash("md5")
@@ -51,4 +52,34 @@ async findOne(deviceId: string): Promise<Device> {
     await this.orm.em.flush();
     return true;
   }
+@UseRequestContext()
+async findDevicesToConnect(secret:string): Promise<Device[]> {
+  const hash = crypto
+  .createHash("md5")
+  .update(secret)
+  .digest("hex");
+    const device = await this.deviceRepository.find({secret:hash});
+
+    if (!device) {
+      throw new EntityNotFoundError(Device);
+    }
+
+    return device;
+  }
+
+  async getClientsToConnect( deviceId: string) {
+  const device = await this.deviceRepository.findOne({deviceId});
+  const devicesToConnect = await this.deviceRepository.find({secret: device?.secret});
+  return(devicesToConnect);
+  }
+
+  @UseRequestContext()
+  async getDevice(id: any, secret: any) {
+    const hash = crypto
+    .createHash("md5")
+    .update(secret)
+    .digest("hex");
+    const device = await this.deviceRepository.findOne({deviceId:id, secret: hash});
+    return device;
+}
 }

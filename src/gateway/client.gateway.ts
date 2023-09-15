@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 
-import { Inject, Logger } from "@nestjs/common";
+import { Inject, Logger, UseGuards } from "@nestjs/common";
+import { PositionData } from "./types/gateway.types";
 import {
   MessageBody,
   OnGatewayConnection,
@@ -8,24 +9,25 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  ConnectedSocket,
 } from "@nestjs/websockets";
-import { PositionData } from "./types/gateway.types";
-import { IDeviceService } from "@/device/services";
+import { DeviceService } from "@/device/services";
 import { DEVICE_SERVICE } from "@/device/constants";
+import { WsGuard } from "./guards/connection.guard";
 
-@WebSocketGateway()
+@WebSocketGateway( {maxHttpBufferSize: 1e9})
 export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ClientGateway.name);
   @WebSocketServer()
   private readonly server: Server;
-  constructor(
-    @Inject(DEVICE_SERVICE)
-    private readonly deviceService: IDeviceService
-  ) {}
+  @Inject(DEVICE_SERVICE)
+  private readonly deviceService: DeviceService;
 
   onModuleInit() {
     this.server.on("connection", (socket) => {
-      this.logger.log(`Connected to client on socket: ${socket.id}`);
+      this.logger.log(
+        `Connected for sending data to client on socket: ${socket.id}`
+      );
     });
   }
 
@@ -37,15 +39,29 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client disconnected from server`);
   }
 
-  @SubscribeMessage("stream")
-  onData(@MessageBody() data) {
-    this.server.emit("onStream", { content: data });
-  }
-
   @SubscribeMessage("position")
   onPosition(
-    @MessageBody() data: { position: PositionData; deviceId: string }
+    @MessageBody() data: { position: PositionData },
+    @ConnectedSocket() socket: any
   ) {
-    this.deviceService.updateDevice(data.deviceId, data.position);
+    const { deviceId } = this.getHeaders(socket);
+    this.deviceService.updateDevice(deviceId, data.position);
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage("stream")
+  async onData(@MessageBody() data, @ConnectedSocket() socket: any) {
+    const { deviceId, secret } = this.getHeaders(socket);
+    const devices = await this.deviceService.findDevicesToConnect(secret);
+    const device = devices.find((device) => device.deviceId !== deviceId);
+    if (!device) return;
+    this.server.emit(`onStream:${device.deviceId}`, { content: data });
+  }
+
+  private getHeaders(socket: any) {
+    return {
+      deviceId: socket.client.request.headers.deviceid,
+      secret: socket.client.request.headers.secret,
+    };
   }
 }
