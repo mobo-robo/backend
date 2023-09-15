@@ -15,7 +15,7 @@ import { DeviceService } from "@/device/services";
 import { DEVICE_SERVICE } from "@/device/constants";
 import { WsGuard } from "./guards/connection.guard";
 
-@WebSocketGateway( {maxHttpBufferSize: 1e9})
+@WebSocketGateway({ maxHttpBufferSize: 1e9 })
 export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ClientGateway.name);
   @WebSocketServer()
@@ -63,5 +63,19 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
       deviceId: socket.client.request.headers.deviceid,
       secret: socket.client.request.headers.secret,
     };
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage("control")
+  async onControl(@MessageBody() data: any, @ConnectedSocket() socket: any) {
+    const { deviceId, secret } = this.getHeaders(socket);
+    const devices = await this.deviceService.findDevicesToConnect(secret);
+    const device = devices.find((device) => device.deviceId !== deviceId);
+    if (!device) {
+      return;
+    }
+    this.server.emit(`onControl:${device.deviceId}`, {
+      content: data,
+    });
   }
 }
