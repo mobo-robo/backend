@@ -8,6 +8,6 @@ export class Device extends AbstractBaseEntity {
   deviceId!: string;
   @Property()
   secret!: string;
-  @Property()
-  geoLocation!: string;
+  @Property({ nullable: true })
+  geoLocation?: string;
 }
