@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { ConfigModule } from '@/config';
-import { ContactModule } from '@/contact';
 import { DatabaseModule } from '@/database';
 import { HealthCheckerModule } from '@/health-checker';
 import { LoggerModule } from '@/logger';
@@ -15,7 +14,6 @@ import { GatewayModule } from '@/gateway';
     LoggerModule,
     HealthCheckerModule,
     DatabaseModule,
-    ContactModule,
     DeviceModule,
     GatewayModule,
   ],
