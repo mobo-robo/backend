@@ -4,12 +4,13 @@ import { Device } from '../entities/device.entity';
 import crypto from "crypto";
 import { DeviceRepository } from '../repositories/device.repository';
 import { plainToClass } from 'class-transformer';
-import { nanoid } from 'nanoid'
+import { nanoid } from 'nanoid';
 import { EntityNotFoundError } from '@/common';
 import { DeviceUpdateDto } from '../dto';
+import { IDeviceService } from './device.service.interface';
 
 @Injectable()
-export class DeviceService {
+export class DeviceService implements IDeviceService{
   constructor(
     private readonly em: EntityManager,
     private readonly deviceRepository: DeviceRepository
@@ -35,16 +36,16 @@ async findOne(deviceId: string): Promise<Device> {
     return device;
   }
 
-  async softDelete(deviceId: string): Promise<void> {
+  async softDelete(deviceId: string): Promise<boolean> {
     const contact = await this.findOne(deviceId);
     wrap(contact).assign({ deletedAt: new Date() });
 
-    return this.em.flush();
+    await this.em.flush();
+    return true;
   }
 
-  async updateDevice(data: DeviceUpdateDto): Promise<boolean> {
-    const device = await this.findOne(data.deviceId);
-
+  async updateDevice(deviceId: string, data: DeviceUpdateDto): Promise<boolean> {
+    const device = await this.findOne(deviceId);
     wrap(device).assign({ ...data });
     await this.em.flush();
     return true;
