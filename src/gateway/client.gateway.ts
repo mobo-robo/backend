@@ -31,7 +31,9 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  handleConnection(client: any) {
+  async handleConnection(client: any) {
+    const { deviceId } = this.getHandshakeHeaders(client);
+    await this.deviceService.updateDevice(deviceId, { isConnected: true });
     this.logger.log(`Client connected with server`);
   }
 
@@ -56,7 +58,9 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async onData(@MessageBody() data, @ConnectedSocket() socket: any) {
     const { deviceId, secret } = this.getHeaders(socket);
     const devices = await this.deviceService.findDevicesToConnect(secret);
-    const device = devices.find((device) => device.deviceId !== deviceId);
+    const device = devices.find(
+      (device) => device.deviceId !== deviceId && device.isConnected
+    );
     if (!device) return;
     this.server.emit(`onStream:${device.deviceId}`, { content: data });
   }
@@ -80,7 +84,9 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async onControl(@MessageBody() data: any, @ConnectedSocket() socket: any) {
     const { deviceId, secret } = this.getHeaders(socket);
     const devices = await this.deviceService.findDevicesToConnect(secret);
-    const device = devices.find((device) => device.deviceId !== deviceId);
+    const device = devices.find(
+      (device) => device.deviceId !== deviceId && device.isConnected
+    );
     if (!device) {
       return;
     }
