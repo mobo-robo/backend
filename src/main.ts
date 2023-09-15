@@ -3,28 +3,31 @@ import {
   UnprocessableEntityException,
   ValidationPipe,
   VersioningType,
-} from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { Logger, LoggerErrorInterceptor } from 'nestjs-pino';
+} from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { Logger, LoggerErrorInterceptor } from "nestjs-pino";
 
 import {
   BadRequestFilter,
   ExceptionFilter,
   ResponseTransformInterceptor,
-} from '@/common';
-import { RootConfig } from '@/config';
-import { appFetch } from '@/utils';
+} from "@/common";
+import { RootConfig } from "@/config";
+import { appFetch } from "@/utils";
 
-import { AppModule } from './app.module';
-import { setupSwagger } from './swagger';
+import { AppModule } from "./app.module";
+import { setupSwagger } from "./swagger";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+    cors: true,
+  });
   const config = app.get(RootConfig);
   app.useLogger(app.get(Logger));
   app.useGlobalInterceptors(
     new LoggerErrorInterceptor(),
-    new ResponseTransformInterceptor(),
+    new ResponseTransformInterceptor()
   );
   app.useGlobalPipes(
     new ValidationPipe({
@@ -32,7 +35,7 @@ async function bootstrap() {
       errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       transform: true,
       exceptionFactory: (errors) => new UnprocessableEntityException(errors),
-    }),
+    })
   );
   app.useGlobalFilters(new ExceptionFilter(config), new BadRequestFilter());
   app.enableVersioning({ type: VersioningType.URI });
