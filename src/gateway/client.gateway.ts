@@ -33,8 +33,10 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: any) {
     const { deviceId } = this.getHandshakeHeaders(client);
-    await this.deviceService.updateDevice(deviceId, { isConnected: true });
-    this.logger.log(`Client connected with server`);
+    const isUpdated = await this.deviceService.updateDevice(deviceId, {
+      isConnected: true,
+    });
+    if (isUpdated) this.logger.log(`Client connected with server`);
   }
 
   async handleDisconnect(client: any) {
@@ -44,6 +46,7 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client disconnected from server`);
   }
 
+  @UseGuards(WsGuard)
   @SubscribeMessage("position")
   onPosition(
     @MessageBody() data: { position: PositionData },

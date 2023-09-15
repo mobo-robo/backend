@@ -5,8 +5,6 @@ import crypto from "crypto";
 import { DeviceRepository } from "../repositories/device.repository";
 import { plainToClass } from "class-transformer";
 import { nanoid } from "nanoid";
-import { EntityNotFoundError } from "@/common";
-import { DeviceUpdateDto } from "../dto";
 import { IDeviceService } from "./device.service.interface";
 
 @Injectable()
@@ -28,11 +26,11 @@ export class DeviceService implements IDeviceService {
     return device;
   }
 
-  async findOne(deviceId: string): Promise<Device> {
+  async findOne(deviceId: string) {
     const device = await this.deviceRepository.findOne({ deviceId });
 
     if (!device) {
-      throw new EntityNotFoundError(Device);
+      return;
     }
 
     return device;
@@ -48,11 +46,9 @@ export class DeviceService implements IDeviceService {
   }
 
   @UseRequestContext()
-  async updateDevice(
-    deviceId: string,
-    data: Partial<Device>
-  ): Promise<boolean> {
+  async updateDevice(deviceId: string, data: Partial<Device>) : Promise<boolean>{
     const device = await this.findOne(deviceId);
+    if (!device) return false;
     wrap(device).assign({ ...data });
     await this.orm.em.flush();
     return true;
@@ -62,11 +58,9 @@ export class DeviceService implements IDeviceService {
   async findDevicesToConnect(secret: string) {
     const hash = crypto.createHash("md5").update(secret).digest("hex");
     const device = await this.deviceRepository.find({ secret: hash });
-
     if (!device) {
       return;
     }
-
     return device;
   }
 
