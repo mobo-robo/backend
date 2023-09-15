@@ -84,6 +84,9 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async onControl(@MessageBody() data: any, @ConnectedSocket() socket: any) {
     const { deviceId, secret } = this.getHeaders(socket);
     const devices = await this.deviceService.findDevicesToConnect(secret);
+    if (!devices) {
+      return;
+    }
     const device = devices.find(
       (device) => device.deviceId !== deviceId && device.isConnected
     );
