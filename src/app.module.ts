@@ -5,7 +5,9 @@ import { ContactModule } from '@/contact';
 import { DatabaseModule } from '@/database';
 import { HealthCheckerModule } from '@/health-checker';
 import { LoggerModule } from '@/logger';
-import { DeviceModule } from './device/device.module';
+import { DeviceModule } from '@/device';
+import { GatewayModule } from '@/gateway';
+
 
 @Module({
   imports: [
@@ -14,7 +16,8 @@ import { DeviceModule } from './device/device.module';
     HealthCheckerModule,
     DatabaseModule,
     ContactModule,
-    DeviceModule
+    DeviceModule,
+    GatewayModule,
   ],
   controllers: [],
   providers: [],
