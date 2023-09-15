@@ -44,6 +44,7 @@
     "cli-box": "^6.0.10",
     "crypto": "^1.0.1",
     "nanoid": "^3.3.4",
+    "cors": "^2.8.5",
     "nest-typed-config": "^2.6.0",
     "nestjs-pino": "^3.3.0",
     "pino-http": "^8.3.3",
