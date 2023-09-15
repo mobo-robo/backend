@@ -12,4 +12,6 @@ export class Device extends AbstractBaseEntity {
   latitude?: string;
   @Property({nullable: true})
   longitude?: string;
+  @Property({nullable: true})
+  isConnected?: boolean;
 }
