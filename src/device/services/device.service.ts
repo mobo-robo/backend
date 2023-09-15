@@ -75,11 +75,13 @@ async findDevicesToConnect(secret:string): Promise<Device[]> {
 
   @UseRequestContext()
   async getDevice(id: any, secret: any) {
-    const hash = crypto
-    .createHash("md5")
-    .update(secret)
-    .digest("hex");
-    const device = await this.deviceRepository.findOne({deviceId:id, secret: hash});
-    return device;
+    if (secret){
+      const hash = crypto
+      .createHash("md5")
+      .update(secret)
+      .digest("hex");
+      const device = await this.deviceRepository.findOne({deviceId:id, secret: hash});
+      return device;
+    }
 }
 }
