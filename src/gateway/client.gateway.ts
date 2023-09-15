@@ -14,10 +14,9 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
   onModuleInit(){
     this.server.on('connection', (socket) => {
-      this.logger.log(`Connected for sending data to client on socket: ${socket.id}`);
+      this.logger.log(`Connected to client on socket: ${socket.id}`);
     })
   }
-
 
    handleConnection(client: any) {
     this.logger.log(`Client connected with server`);
@@ -30,8 +29,11 @@ export class ClientGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
   @SubscribeMessage('data')
   onData(@MessageBody() data) {
-    console.log(data);
     this.server.emit('onData', { message: 'hey!', body: data})
+  }
+
+  @SubscribeMessage('position')
+  onPosition(@MessageBody() data){
   }
 
 
