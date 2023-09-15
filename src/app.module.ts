@@ -4,7 +4,9 @@ import { ConfigModule } from '@/config';
 import { DatabaseModule } from '@/database';
 import { HealthCheckerModule } from '@/health-checker';
 import { LoggerModule } from '@/logger';
-import { DeviceModule } from './device/device.module';
+import { GatewayModule } from '@/gateway';
+import { DeviceModule } from '@/device';
+
 
 @Module({
   imports: [
@@ -12,7 +14,8 @@ import { DeviceModule } from './device/device.module';
     LoggerModule,
     HealthCheckerModule,
     DatabaseModule,
-    DeviceModule
+    DeviceModule,
+    GatewayModule,
   ],
   controllers: [],
   providers: [],
