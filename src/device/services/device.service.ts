@@ -1,4 +1,4 @@
-import { EntityManager, wrap } from '@mikro-orm/core';
+import { MikroORM, UseRequestContext, wrap } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { Device } from '../entities/device.entity';
 import crypto from "crypto";
@@ -12,7 +12,7 @@ import { IDeviceService } from './device.service.interface';
 @Injectable()
 export class DeviceService implements IDeviceService{
   constructor(
-    private readonly em: EntityManager,
+    private readonly orm: MikroORM,
     private readonly deviceRepository: DeviceRepository
   ) {}
 
@@ -23,7 +23,7 @@ export class DeviceService implements IDeviceService{
     .digest("hex");
     const deviceId = nanoid()
     const device = plainToClass(Device,{secret: hash, deviceId });
-    await this.em.persistAndFlush(device);
+    await this.orm.em.persistAndFlush(device);
     return device;
   }
 async findOne(deviceId: string): Promise<Device> {
@@ -40,14 +40,15 @@ async findOne(deviceId: string): Promise<Device> {
     const contact = await this.findOne(deviceId);
     wrap(contact).assign({ deletedAt: new Date() });
 
-    await this.em.flush();
+    await this.orm.em.flush();
     return true;
   }
 
+  @UseRequestContext()
   async updateDevice(deviceId: string, data: DeviceUpdateDto): Promise<boolean> {
     const device = await this.findOne(deviceId);
     wrap(device).assign({ ...data });
-    await this.em.flush();
+    await this.orm.em.flush();
     return true;
   }
 }
