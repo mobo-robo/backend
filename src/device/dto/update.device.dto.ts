@@ -1,12 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class DeviceUpdateDto{
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    deviceId!: string;
-  
     @ApiProperty()
     @IsString()
     @IsOptional()

@@ -12,12 +12,6 @@ export class Device extends AbstractBaseEntity {
   latitude?: string;
   @Property({nullable: true})
   longitude?: string;
-
-  constructor(props: Omit<Device, keyof AbstractBaseEntity>) {
-    super();
-    this.deviceId = props.deviceId;
-    this.secret = props.secret;
-    this.longitude = props.longitude;
-    this.latitude = props.latitude;
-  }
+  @Property({nullable: true})
+  isConnected?: boolean;
 }
